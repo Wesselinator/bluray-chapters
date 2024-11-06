@@ -1,0 +1,71 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+
+# https://taskfile.dev
+
+version: '3'
+
+dotenv: [".env","tag.env","container.env"]
+
+vars:
+  LOCAL_CONTAINER: "localhost/${REPO}:latest"
+
+tasks:
+  # HOST
+  install:pacman:devtools:
+    description: "Installs devtools for the pacman package manager (Arch)"
+    cmds:
+      - cmd: pacman -S go-task podman
+        platforms: ["linux"]
+
+  install:winget:devtools:
+    description: "Installs the devtools for the winget package manager (DOS)"
+    cmds:
+      - cmd: winget install Redhat.Podman Task.Task --source winget
+        platform: ["windows"]
+
+  # BUILD
+  build:
+    description: "Generic build"
+    cmds:
+      - cmd: "gcc -o /usr/local/bin/bd_chapters ./src/bd_chapters.c -lbluray"
+        platform: ["linux", "darwin"]
+
+
+  # CONTAINERS
+  container:clean:
+    description: "Cleans the latest container images from cache"
+    cmds:
+      - task: container:clean:local
+      - task: container:clean:prune
+
+  container:clean:prune:
+    description: "PRUNES the podman image cache (potentially destructive)"
+    cmds:
+      - cmd: podman image prune -f
+
+  container:clean:local:
+    description: "Deletes the local image cache"
+    cmds:
+      - cmd: podman image rm {{ .LOCAL_CONTAINER }}
+
+
+  container:build:
+    description: "Builds the local building container"
+    sources:
+      - src/**/*.c
+    cmds:
+      - cmd: podman build --layers --squash-all . -f containerfiles/scratch.Containerfile -t {{ .LOCAL_CONTAINER }}
+
+  container:run:
+    description: "Runs the local building container"
+    deps:
+      - task: container:build
+    cmds:
+      - cmd: podman run --rm -i localhost/bd_chapters:latest -- {{ .CLI_ARGS }}
+
+  container:run:cdrom:
+    description: "Runs with cdrom as arg"
+    deps:
+      - task: container:build
+    cmds:
+      - cmd: podman run --rm --device=/dev/cdrom:/dev/cdrom:r -i {{ .LOCAL_CONTAINER }} -- /dev/cdrom {{ .CLI_ARGS }}
