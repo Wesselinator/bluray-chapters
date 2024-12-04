@@ -14,7 +14,7 @@ tasks:
   install:pacman:devtools:
     description: "Installs devtools for the pacman package manager (Arch)"
     cmds:
-      - cmd: pacman -S go-task podman
+      - cmd: pacman -S go-task podman qemu-user-static qemu-user-static-binfmt
         platforms: ["linux"]
 
   install:winget:devtools:
@@ -54,17 +54,25 @@ tasks:
     sources:
       - src/**/*.c
     cmds:
-      - cmd: podman build --layers --squash-all . -f containerfiles/scratch.Containerfile -t {{ .LOCAL_CONTAINER }}
+      - podman manifest create bd_chapters:manifest
+      - defer: podman manifest rm bd_chapters:manifest
+      # --platform "linux/amd64,linux/arm64,linux/riscv64" --jobs 3
+      - >
+          podman build
+          --manifest bd_chapters:manifest
+          --layers --squash-all
+          . -f ./Containerfile
+      - podman tag bd_chapters:manifest {{ .LOCAL_CONTAINER }}
 
   container:run:
     description: "Runs the local building container"
     deps:
       - task: container:build
     cmds:
-      - cmd: podman run --rm -i localhost/bd_chapters:latest -- {{ .CLI_ARGS }}
+      - cmd: podman run --rm -i {{ .LOCAL_CONTAINER }} -- {{ .CLI_ARGS }}
 
   container:run:cdrom:
-    description: "Runs with cdrom as arg"
+    description: "Runs with cdrom mounted"
     deps:
       - task: container:build
     cmds:

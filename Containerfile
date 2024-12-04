@@ -1,1 +1,1 @@
-containerfiles/scratch.Containerfile
+./containerfiles/alpine.Containerfile

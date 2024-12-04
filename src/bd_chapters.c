@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <inttypes.h>
 #include <unistd.h>
 
@@ -25,7 +24,7 @@ static void _usage(char *cmd)
   fprintf(stderr,
     "Usage: %s <bd path> -p <playlist number> [-f format] [-o outfile]\n"
     "       %s <bd path> -t <title number>    [-f format] [-o outfile]\n"
-    "   Lists the chaprs of a playlist\n"
+    "   Lists the chapters of a playlist\n"
     "   -p N              - Playlist N. (overides if title is spesified as well)\n"
     "   -t N              - Title N. First title is 1.\n"
     "   -f <format>       - Format (text, ffmpeg)\n"
