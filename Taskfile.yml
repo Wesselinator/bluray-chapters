@@ -17,6 +17,12 @@ tasks:
       - cmd: pacman -S go-task podman qemu-user-static qemu-user-static-binfmt
         platforms: ["linux"]
 
+  install:dnf:devtools:
+    description: "Installs devtools for the dnf package manager (Fedora)"
+    cmds:
+      - cmd: dnf go-task podman qemu-user-static qemu-user-static-binfmt
+        platforms: ["linux"]
+
   install:winget:devtools:
     description: "Installs the devtools for the winget package manager (DOS)"
     cmds:
@@ -53,6 +59,7 @@ tasks:
     description: "Builds the local building container"
     sources:
       - src/**/*.c
+      - Containerfile
     cmds:
       - podman manifest create bd_chapters:manifest
       - defer: podman manifest rm bd_chapters:manifest
@@ -65,14 +72,28 @@ tasks:
       - podman tag bd_chapters:manifest {{ .LOCAL_CONTAINER }}
 
   container:run:
-    description: "Runs the local building container"
+    description: "Runs the localy built container. (Provide your own podman args)"
     deps:
       - task: container:build
     cmds:
-      - cmd: podman run --rm -i {{ .LOCAL_CONTAINER }} -- {{ .CLI_ARGS }}
+      - cmd: podman run {{ .LOCAL_CONTAINER }} {{ .CLI_ARGS }}
+
+  container:run:root:
+    description: "Runs on mounted root  (provide full path)"
+    deps:
+      - task: container:build
+    cmds:
+      - cmd: podman run --rm --volume=/:/hostroot:ro --workdir=/hostroot -i {{ .LOCAL_CONTAINER }} -- ./{{ .CLI_ARGS }}
+
+  container:run:dot:
+    description: "Runs in mounted .  (provide relative path)"
+    deps:
+      - task: container:build
+    cmds:
+      - cmd: podman run --rm --volume=.:/hostdot:ro --workdir=/hostdot -i {{ .LOCAL_CONTAINER }} -- ./{{ .CLI_ARGS }}
 
   container:run:cdrom:
-    description: "Runs with cdrom mounted"
+    description: "Runs with cdrom mounted  (provide cmd args)"
     deps:
       - task: container:build
     cmds:

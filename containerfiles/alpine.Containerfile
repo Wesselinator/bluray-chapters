@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: LGPLL-2.1-or-later
+# SPDX-License-Identifier: LGPL-2.1-or-later
 
 # # `bd_chapters` Containerfile
 # Built on alpine (muslc) for it's insane size
@@ -49,8 +49,8 @@ RUN rm -rf /var/cache/apk/*
 RUN rm -vrf /bin/* /sbin/* /usr/bin/* /usr/sbin/* /etc/busybox-paths.d /usr/share/apk /var/cache/apk /lib/apk /etc/apk
 # ### Move from builder image
 # Position is important for caching
-COPY --from=builder /usr/local/bin/bd_chapters /usr/local/bin/bd_chapter
+COPY --from=builder /usr/local/bin/bd_chapters /usr/local/bin/bd_chapters
 # ### Set container entrypoint and default cmd
 #
-ENTRYPOINT ["/usr/local/bin/bd_chapter"]
+ENTRYPOINT ["/usr/local/bin/bd_chapters"]
 CMD ["-h"]
