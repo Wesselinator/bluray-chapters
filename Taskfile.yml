@@ -20,7 +20,7 @@ tasks:
   install:dnf:devtools:
     description: "Installs devtools for the dnf package manager (Fedora)"
     cmds:
-      - cmd: dnf go-task podman qemu-user-static qemu-user-static-binfmt
+      - cmd: dnf go-task podman qemu-user-static qemu-user-binfmt
         platforms: ["linux"]
 
   install:winget:devtools:
